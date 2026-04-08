@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio 20: Photosynthesis Review</title>
+    <style>
+        :root {
+            --forest-green: #1b4332;
+            --leaf-green: #2d6a4f;
+            --sage: #95d5b2;
+            --earth-brown: #6d4c41;
+            --pale-leaf: #d8f3dc;
+            --correct-green: #b7e4c7;
+            --error-red: #ffccd5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #000000; /* Strictly black text */
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #d8f3dc 0%, #95d5b2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            background: #ffffff;
+            width: 90%;
+            max-width: 850px;
+            margin: 20px;
+            padding: 40px;
+            border-radius: 20px;
+            border-bottom: 8px solid var(--forest-green);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: var(--forest-green);
+            text-align: center;
+            border-bottom: 3px solid var(--sage);
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+
+        #progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #progress-bar-fill {
+            height: 100%;
+            width: 4%;
+            background: var(--leaf-green);
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+
+        .question {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-left: 15px;
+            border-left: 5px solid var(--earth-brown);
+        }
+
+        .options-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-item {
+            padding: 15px 20px;
+            border: 2px solid var(--pale-leaf);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            background-color: #fafafa;
+        }
+
+        .option-item:hover {
+            border-color: var(--leaf-green);
+            background-color: #f0fff4;
+            transform: translateX(5px);
+        }
+
+        .correct { 
+            background-color: var(--correct-green) !important; 
+            border-color: var(--leaf-green) !important;
+            font-weight: bold;
+        }
+
+        .incorrect { 
+            background-color: var(--error-red) !important; 
+            border-color: #c9184a !important; 
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: var(--forest-green);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: none;
+            margin: 20px auto 0;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: var(--leaf-green); }
+
+        #results-summary { display: none; text-align: center; }
+        
+        .mistake-category {
+            text-align: left;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid var(--sage);
+            border-left: 8px solid var(--leaf-green);
+            border-radius: 8px;
+        }
+
+        .stats-box {
+            background: var(--pale-leaf);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <h1 id="quiz-title">🌿 Biology 20 Review</h1>
+        <div id="progress-text" style="font-weight: bold; margin-bottom: 5px;">Question 1 of 25</div>
+        <div id="progress-bar-container"><div id="progress-bar-fill"></div></div>
+        
+        <div id="question-text" class="question"></div>
+        <div id="options" class="options-list"></div>
+        
+        <div id="feedback-area" class="feedback"></div>
+        <button id="next-btn" onclick="loadNextQuestion()">Continue to Next Step →</button>
+    </div>
+
+    <div id="results-summary">
+        <h1>Harvest Complete! 🌻</h1>
+        <div class="stats-box">
+            <p id="final-score" style="font-size: 2em; margin: 0; color: var(--forest-green);"></p>
+            <p id="percentage-text" style="font-weight: bold;"></p>
+        </div>
+        <div id="mistake-analysis"></div>
+        <button style="display:block;" onclick="location.reload()">Start New Growth Cycle</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        { q: "A researcher isolates chloroplasts and manages to create a high concentration of hydrogen ions (H+) inside the thylakoid space compared to the stroma. If the chloroplasts are kept in the dark, which would most likely occur?", a: 0, options: ["ATP will be synthesized as protons move through ATP synthase", "NADPH will be produced from NADP+", "The chloroplast will begin the photolysis of water", "Glucose will be produced via the Calvin Cycle"], feedback: "ATP synthesis depends on the concentration gradient (potential energy) acting like water behind a dam, not directly on light.", category: "Chemiosmosis" },
+        { q: "During a drought, a plant closes its stomata. Which change leads to a decrease in sugar production?", a: 0, options: ["Buildup of O2 and depletion of CO2 inside the leaf", "Decrease in water splitting in the thylakoid", "Degradation of chlorophyll pigments", "Increase in production of NADPH"], feedback: "Closed stomata block gas exchange. Without incoming CO2, the Calvin Cycle has no raw material to build sugar.", category: "Gas Exchange" },
+        { q: "What is the primary role of the antenna complex (accessory pigments)?", a: 0, options: ["To harvest photons and funnel energy toward reaction center chlorophyll a", "To act as the primary electron acceptor", "To split water molecules", "To catalyze carbon fixation"], feedback: "Antenna pigments gather a wider range of light wavelengths and funnel that energy to the reaction center.", category: "Pigments" },
+        { q: "If a toxin inhibits the enzyme that regenerates RuBP, what is the immediate consequence?", a: 0, options: ["Unable to fix CO2 in the next cycle", "Photolysis of water will cease", "ATP production will increase", "Oxygen production will double"], feedback: "RuBP is the starting carbon-acceptor. If it isn't recycled, the plant can't 'grab' new CO2 molecules.", category: "Calvin Cycle" },
+        { q: "If a plant is given water with a heavy isotope of oxygen (18O), where is it detected after photosynthesis?", a: 0, options: ["In the O2 gas released", "In the glucose molecules", "In the RuBP molecules", "In the starch stored in roots"], feedback: "The oxygen you breathe from plants comes specifically from split water molecules, not from CO2.", category: "Photolysis" },
+        { q: "Identify the correct flow of electrons in non-cyclic light reactions:", a: 0, options: ["H2O -> P680 (PSII) -> ETC -> P700 (PSI) -> NADPH", "H2O -> P700 -> ETC -> P680 -> NADPH", "NADPH -> ETC -> P680 -> P700 -> O2", "CO2 -> P680 -> P700 -> Glucose"], feedback: "Electrons start at water, move to PSII (680), then travel the ETC to PSI (700).", category: "Electron Transport Chain" },
+        { q: "Where is the concentration of H+ ions highest during active photosynthesis?", a: 0, options: ["Thylakoid lumen", "Stroma", "Outer membrane", "Cytoplasm"], feedback: "The ETC 'pumps' protons into the thylakoid lumen (the interior space).", category: "Chemiosmosis" },
+        { q: "What is the primary significance of cyclic electron flow?", a: 0, options: ["Produces additional ATP without producing NADPH", "Allows carbon fixation without light", "Increases oxygen production", "Converts glucose into starch"], feedback: "The Calvin cycle needs a 3:2 ratio of ATP to NADPH. Cyclic flow helps balance this energy requirement.", category: "Electron Transport Chain" },
+        { q: "What is the role of NADPH in the synthesis of G3P?", a: 0, options: ["Provides high-energy electrons to reduce carbon", "Acts as an enzyme for fixation", "Captures light energy", "Provides phosphate groups"], feedback: "NADPH is an electron carrier; it delivers the power needed to 'reduce' carbon into a sugar form.", category: "Calvin Cycle" },
+        { q: "Why does photosynthesis rate decrease under green light?", a: 0, options: ["Chlorophyll reflects green light", "Green light has too much energy", "Green light is absorbed too quickly", "It causes water to split too fast"], feedback: "Green light is not absorbed well by chlorophyll; it is reflected, which is why leaves look green.", category: "Pigments" },
+        { q: "If the thylakoid membrane becomes 'leaky' to protons, what is directly inhibited?", a: 0, options: ["Phosphorylation of ADP to ATP", "Absorption of light", "Reduction of NADP+", "Fixation of CO2"], feedback: "Without a proton gradient (the 'dam'), the ATP synthase turbine cannot turn.", category: "Chemiosmosis" },
+        { q: "When water is split, where do the H+ ions go?", a: 0, options: ["Stay in the thylakoid lumen", "Released as gas", "Incorporate into RuBP", "Power the ETC directly"], feedback: "Protons released from water splitting help build the concentration gradient inside the lumen.", category: "Photolysis" },
+        { q: "What directly powers the Electron Transport Chain?", a: 0, options: ["Electrons energized by photons of light", "Breakdown of glucose", "Proton concentration", "ATP hydrolysis"], feedback: "Photons strike the photosystems, which energize electrons to 'drive' the chain.", category: "Light Reactions" },
+        { q: "What happens to G3P molecules that do not leave the cycle to form glucose?", a: 0, options: ["Converted back to RuBP using ATP", "Released through stomata", "Used to oxidize NADPH", "Broken down for photolysis"], feedback: "Most G3P stays in the cycle to regenerate RuBP so the cycle can continue.", category: "Calvin Cycle" },
+        { q: "Best way to measure photosynthesis rate in an aquatic plant?", a: 0, options: ["Volume of oxygen bubbles produced", "Intake of oxygen gas", "Amount of water absorbed", "CO2 release"], feedback: "Oxygen is produced as a byproduct in the thylakoids; in water, this appears as bubbles.", category: "Methods" },
+        { q: "If ferredoxin (end of PSI) is non-functional, what cannot be produced?", a: 0, options: ["NADPH", "Light absorption", "Water splitting", "Glucose"], feedback: "Ferredoxin passes the final electrons to NADP+ to create NADPH.", category: "Electron Transport Chain" },
+        { q: "How many turns of the Calvin cycle make one glucose (C6H12O6)?", a: 0, options: ["6", "1", "3", "12"], feedback: "Since one turn fixes 1 carbon atom, and glucose has 6, it takes 6 turns.", category: "Calvin Cycle" },
+        { q: "Which structure is found in both thylakoids and mitochondria for ATP?", a: 0, options: ["ETC and ATP synthase", "Chlorophyll pigments", "Rubisco enzyme", "Photosystems I and II"], feedback: "Both organelles use an ETC and ATP synthase to produce energy (Chemiosmosis).", category: "Organelles" },
+        { q: "What is the specific role of Rubisco?", a: 0, options: ["Catalyzes reaction between CO2 and RuBP", "Splits water", "Pumps protons", "Converts G3P to glucose"], feedback: "Rubisco is the 'gatekeeper' enzyme that fixes inorganic carbon into the cycle.", category: "Calvin Cycle" },
+        { q: "Where do Light and Dark reactions occur respectively?", a: 0, options: ["Thylakoid; Stroma", "Stroma; Thylakoid", "Lumen; Cytoplasm", "Outer; Inner membrane"], feedback: "Light reactions need membranes (thylakoids); Dark reactions need the fluid space (stroma).", category: "Locations" },
+        { q: "What is the final electron acceptor in light reactions?", a: 0, options: ["NADP+", "Oxygen", "P700", "G3P"], feedback: "The 'bucket' at the end of the electron chain that catches the electrons is NADP+.", category: "Electron Transport Chain" },
+        { q: "If the thylakoid is permeable to NADP+, effect on Calvin Cycle?", a: 0, options: ["Little to no effect", "Speeds up", "Cycle stops", "Rubisco denatures"], feedback: "The Calvin cycle happens in the stroma where NADP+ is already found.", category: "Locations" },
+        { q: "Primary function of the ETC between PSII and PSI?", a: 0, options: ["Pump H+ into thylakoid space", "Capture photons", "Split water", "Pathway for CO2"], feedback: "The energy from the moving electrons is used to pump protons across the membrane.", category: "Electron Transport Chain" },
+        { q: "How can a plant survive under green light temporarily?", a: 0, options: ["Use stored starch for respiration", "Absorb green light", "Fixing nitrogen", "Reverse photosynthesis"], feedback: "Plants can survive on stored starch (energy) even if they aren't currently photosynthesizing.", category: "Light Reactions" },
+        { q: "Primary purpose of Light-Dependent reactions?", a: 0, options: ["Convert light into ATP and NADPH", "Produce glucose", "Remove CO2", "Generate heat"], feedback: "Light reactions produce the chemical 'fuel' required to power the Calvin Cycle.", category: "Light Reactions" }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let categoryScores = {};
+
+    function loadQuestion() {
+        const qData = quizData[currentQuestion];
+        document.getElementById("progress-text").innerText = `Question ${currentQuestion + 1} of 25`;
+        document.getElementById("progress-bar-fill").style.width = ((currentQuestion + 1) / 25 * 100) + "%";
+        
+        document.getElementById("question-text").innerText = qData.q;
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = "";
+        
+        qData.options.forEach((opt, index) => {
+            const div = document.createElement("div");
+            div.className = "option-item";
+            div.innerText = opt;
+            div.onclick = () => checkAnswer(index);
+            optionsDiv.appendChild(div);
+        });
+        
+        document.getElementById("feedback-area").style.display = "none";
+        document.getElementById("next-btn").style.display = "none";
+    }
+
+    function checkAnswer(choice) {
+        const qData = quizData[currentQuestion];
+        const options = document.getElementsByClassName("option-item");
+        for (let opt of options) opt.style.pointerEvents = "none";
+
+        const feedbackArea = document.getElementById("feedback-area");
+        feedbackArea.style.display = "block";
+
+        if (choice === qData.a) {
+            options[choice].classList.add("correct");
+            feedbackArea.style.backgroundColor = "#e8f5e9";
+            feedbackArea.innerHTML = "<strong>🌟 Brilliant!</strong> " + qData.feedback;
+            score++;
+        } else {
+            options[choice].classList.add("incorrect");
+            options[qData.a].classList.add("correct");
+            feedbackArea.style.backgroundColor = "#fff1f0";
+            feedbackArea.innerHTML = "<strong>🌱 Keep Growing!</strong> " + qData.feedback;
+            categoryScores[qData.category] = (categoryScores[qData.category] || 0) + 1;
+        }
+        document.getElementById("next-btn").style.display = "block";
+    }
+
+    function loadNextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById("quiz-screen").style.display = "none";
+        const resultsDiv = document.getElementById("results-summary");
+        resultsDiv.style.display = "block";
+        
+        document.getElementById("final-score").innerText = `${score} / 25`;
+        document.getElementById("percentage-text").innerText = `Overall Growth: ${Math.round(score/25*100)}%`;
+
+        let analysisHTML = "<h3 style='margin-top:30px;'>Soil Analysis (Areas for Improvement):</h3>";
+        if (Object.keys(categoryScores).length === 0) {
+            analysisHTML += "<p>You are a Master Gardener! Your knowledge is in full bloom.</p>";
+        } else {
+            for (let cat in categoryScores) {
+                analysisHTML += `<div class="mistake-category">
+                    <strong>Focus Area: ${cat}</strong><br>
+                    You had ${categoryScores[cat]} slip-up(s) here. Review your Unit C notes on this specific pathway.
+                </div>`;
+            }
+        }
+        document.getElementById("mistake-analysis").innerHTML = analysisHTML;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
